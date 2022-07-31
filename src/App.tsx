@@ -15,7 +15,7 @@ export const App: FC = () => {
                 <Main
                     childComp={
                         <Routes>
-                            <Route path="/wallets" element={<ManageNFTs />} />
+                            <Route path="/wallet" element={<ManageNFTs />} />
                             <Route path="/" element={<Home />} />
                         </Routes>
                     }

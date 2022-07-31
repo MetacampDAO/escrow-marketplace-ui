@@ -14,7 +14,6 @@ const ManageNFTs = () => {
 
     return (
         <div>
-
         </div>
     );
 };
