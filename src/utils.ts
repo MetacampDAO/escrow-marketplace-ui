@@ -1,6 +1,6 @@
 import { AccountInfo, Connection, ParsedAccountData, PublicKey } from "@solana/web3.js";
 import { programs } from "@metaplex/js";
-import { conn } from "./client/init";
+import { conn } from "./client/common/init";
 
 interface MetadataInterface {
   imageUrl: string,

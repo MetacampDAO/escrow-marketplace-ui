@@ -1,20 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, TokenAccountsFilter } from '@solana/web3.js';
-import { conn } from '../../client/init';
+import { conn } from '../../client/common/init';
 import { TOKEN_PROGRAM_ID } from '@project-serum/anchor/dist/cjs/utils/token';
 import { filterAvailAccount, getMintsMetadata } from '../../utils';
 import WalletOverview from './overview';
-import CardNFT, { CardNFTInterface } from './cardNFT';
+import CardNFT, { NFTInterface } from './cardNFT';
 import _ from 'lodash';
 
 const ManageNFTs = () => {
     const wallet = useAnchorWallet();
     const [walletPubKey, setWalletPubKey] = useState<PublicKey>();
     const [listedNFTsAmount, setListedNFTsAmount] = useState<number>(0);
-    const [listedCardsNftInfo, setListedCardsNftInfo] = useState<CardNFTInterface[]>();
+    const [listedCardsNftInfo, setListedCardsNftInfo] = useState<NFTInterface[]>();
     const [unlistedNFTsAmount, setUnlistedNFTsAmount] = useState<number>(0);
-    const [unlistedCardsNftInfo, setUnlistedCardsNftInfo] = useState<CardNFTInterface[]>();
+    const [unlistedCardsNftInfo, setUnlistedCardsNftInfo] = useState<NFTInterface[]>();
     const [showListed, setShowListed] = useState<boolean>(false);
 
     const tokenAccountsFilter: TokenAccountsFilter = {
@@ -40,8 +40,8 @@ const ManageNFTs = () => {
                 return {
                     mintPubKey: availMintsPubKey[index],
                     tokenPubKey: tokenAccountInfo.pubkey,
-                    imageUrl: "loading",
-                    name: "loading",
+                    imageUrl: 'loading',
+                    name: 'loading',
                 };
             })
         );
@@ -60,10 +60,14 @@ const ManageNFTs = () => {
         );
     };
 
+    const setOverallStates = async (walletPubKey: PublicKey) => {
+        await setWalletStates(walletPubKey);
+    };
+
     useEffect(() => {
         (async () => {
             if (wallet) {
-                await setWalletStates(wallet.publicKey);
+                await setOverallStates(wallet.publicKey);
             }
         })();
     }, [wallet]);
@@ -96,22 +100,10 @@ const ManageNFTs = () => {
             <div className="grid grid-cols-12 gap-6">
                 {showListed
                     ? listedCardsNftInfo?.map((cardInfoNFT, index) => (
-                          <CardNFT
-                              mintPubKey={cardInfoNFT.mintPubKey}
-                              tokenPubKey={cardInfoNFT.tokenPubKey}
-                              imageUrl={cardInfoNFT.imageUrl}
-                              name={cardInfoNFT.name}
-                              key={index}
-                          />
+                          <CardNFT nft={cardInfoNFT} wallet={wallet} setOverallStates={setOverallStates} key={index} />
                       ))
                     : unlistedCardsNftInfo?.map((cardInfoNFT, index) => (
-                          <CardNFT
-                              mintPubKey={cardInfoNFT.mintPubKey}
-                              tokenPubKey={cardInfoNFT.tokenPubKey}
-                              imageUrl={cardInfoNFT.imageUrl}
-                              name={cardInfoNFT.name}
-                              key={index}
-                          />
+                          <CardNFT nft={cardInfoNFT} wallet={wallet} setOverallStates={setOverallStates} key={index} />
                       ))}
             </div>
         </div>

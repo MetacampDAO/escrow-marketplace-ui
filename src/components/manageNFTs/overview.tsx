@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
 import { PublicKey } from '@solana/web3.js';
-import { conn } from '../../client/init';
+import { conn } from '../../client/common/init';
 
 interface OverviewInterface {
     walletPubKey: PublicKey | undefined;

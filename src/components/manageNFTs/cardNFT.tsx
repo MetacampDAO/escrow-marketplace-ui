@@ -1,23 +1,63 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { PublicKey } from '@solana/web3.js';
+import { AnchorWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
+import _ from 'lodash';
+import { conn, initEscrowMarketplaceClient } from '../../client/common';
 
-export interface CardNFTInterface {
+export interface NFTInterface {
     mintPubKey: PublicKey;
     tokenPubKey: PublicKey;
     imageUrl: string;
     name: string;
 }
 
-const CardNFT = ({ mintPubKey, tokenPubKey, imageUrl, name }: CardNFTInterface) => {
+interface cardNFTInterface {
+    nft: NFTInterface,
+    wallet: AnchorWallet | undefined,
+    setOverallStates: (walletPubKey: PublicKey) => Promise<void>,
+}
+
+const CardNFT = ({ nft, wallet, setOverallStates }: cardNFTInterface) => {
+    const {mintPubKey, tokenPubKey, imageUrl, name} = nft;
     const [imgLoading, setImgLoading] = useState<boolean>(true);
     const [isTxLoading, setIsTxLoading] = useState<boolean>(false);
     const [listingPrice, setListingPrice] = useState<string>();
+    const [wsSubscriptionId, setWsSubscribtionId] = useState<number>();
 
-    const onClickList = async() => {
-        setIsTxLoading(true)
+    const removeEscrowInfoListener = async () => {
+        if (wsSubscriptionId)
+            await conn.removeAccountChangeListener(wsSubscriptionId)
     }
+
+    const onClickList = async () => {
+        if (wallet && mintPubKey && tokenPubKey && listingPrice) {
+            setIsTxLoading(true);
+            try {
+                const emClient = await initEscrowMarketplaceClient(wallet as any);
+                const {txSig, escrowInfoPda} = await emClient.createListing(
+                    wallet.publicKey,
+                    tokenPubKey,
+                    mintPubKey,
+                    Math.ceil(parseFloat(listingPrice) * 1e9)
+                )
+
+                console.log("Submitted tx:", txSig)
+
+                const wsSubscriptionId = conn.onAccountChange(escrowInfoPda, async () => {
+                    await removeEscrowInfoListener()
+                    await setOverallStates(wallet.publicKey)
+                    setIsTxLoading(false)
+                    setListingPrice(undefined)
+                })
+                setWsSubscribtionId(wsSubscriptionId)
+            } catch (err) {
+                setIsTxLoading(false)
+                console.log(err);
+            }
+        }
+    };
     return (
-        <div className="shadow-lg bg-slate-800 rounded-lg col-span-12 lg:col-span-3">
+        <div className="shadow-xl bg-slate-800 rounded-lg col-span-12 lg:col-span-3">
             {imageUrl === 'loading' && (
                 <div className="w-full bg-gray-700 animate-pulse rounded-t-lg">
                     <div style={{ marginTop: '100%' }}></div>
@@ -42,7 +82,7 @@ const CardNFT = ({ mintPubKey, tokenPubKey, imageUrl, name }: CardNFTInterface) 
             )}
             <div className="px-3 py-5 text-gray-200">
                 {name === 'loading' ? <div className="w-1/2 py-3 bg-slate-600 rounded animate-pulse"></div> : name}
-                <div className='flex flex-row mt-3 space-x-1.5'>
+                <div className="flex flex-row mt-3 space-x-1.5">
                     <input
                         type="number"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full py-1 px-2  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
