@@ -11,7 +11,7 @@ export interface CardNFTInterface {
 const CardNFT = ({ mintPubKey, tokenPubKey, imageUrl, name }: CardNFTInterface) => {
     const [imgLoading, setImgLoading] = useState(true);
     return (
-        <div className='shadow-lg bg-slate-800 rounded-lg col-span-12 lg:col-span-3'>
+        <div className="shadow-lg bg-slate-800 rounded-lg col-span-12 lg:col-span-3">
             {imageUrl === 'loading' && (
                 <div className="w-full bg-gray-700 animate-pulse rounded-t-lg">
                     <div style={{ marginTop: '100%' }}></div>
@@ -34,8 +34,8 @@ const CardNFT = ({ mintPubKey, tokenPubKey, imageUrl, name }: CardNFTInterface) 
                     </div>
                 </div>
             )}
-            <div className='px-3 py-5 text-gray-200'>
-                {name}
+            <div className="px-3 py-5 text-gray-200">
+                {name === 'loading' ? <div className="w-1/2 py-3 bg-slate-600 rounded animate-pulse"></div> : name}
             </div>
         </div>
     );
