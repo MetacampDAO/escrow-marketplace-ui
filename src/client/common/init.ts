@@ -17,7 +17,7 @@ export async function  initEscrowMarketplaceClient(
   return new EscrowMarketplaceClient(conn, walletToUse, emIdl as any, ESCROW_MARKETPLACE_PROG_ID);
 }
 
-function createFakeWallet() {
+export function createFakeWallet() {
   const leakedKp = Keypair.fromSecretKey(
     Uint8Array.from([
       208, 175, 150, 242, 88, 34, 108, 88, 177, 16, 168, 75, 115, 181, 199, 242,

@@ -3,10 +3,12 @@ import { PublicKey } from '@solana/web3.js';
 import { AnchorWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
 import _ from 'lodash';
 import { conn, initEscrowMarketplaceClient } from '../../client/common';
-import CreateListing from './createListing';
-import CancelListing from './cancelListing';
+import CreateListing from '../manageNFTs/createListing';
+import CancelListing from '../manageNFTs/cancelListing';
+import PurchaseListing from '../home/purchaseListing';
 
 export interface NFTInterface {
+    sellerKey: PublicKey;
     mintPubKey: PublicKey;
     tokenPubKey: PublicKey;
     imageUrl: string;
@@ -17,11 +19,11 @@ export interface NFTInterface {
 interface cardNFTInterface {
     nft: NFTInterface;
     wallet: AnchorWallet | undefined;
-    setOverallStates: (walletPubKey: AnchorWallet) => Promise<void>;
+    setStates: (walletPubKey: AnchorWallet) => Promise<void>;
     isListed: boolean;
 }
 
-const CardNFT = ({ nft, wallet, setOverallStates, isListed }: cardNFTInterface) => {
+const CardNFT = ({ nft, wallet, setStates, isListed }: cardNFTInterface) => {
     const { imageUrl, name } = nft;
     const [imgLoading, setImgLoading] = useState<boolean>(true);
 
@@ -54,9 +56,13 @@ const CardNFT = ({ nft, wallet, setOverallStates, isListed }: cardNFTInterface) 
                 {name === 'loading' && <div className="w-full mt-3 py-4 bg-slate-600 rounded animate-pulse"></div>}
                 {name != 'loading' &&
                     (isListed ? (
-                        <CancelListing nft={nft} wallet={wallet} setOverallStates={setOverallStates} />
+                        wallet?.publicKey.equals(nft.sellerKey)? (
+                            <CancelListing nft={nft} wallet={wallet} setOverallStates={setStates} />
+                        ) : (
+                            <PurchaseListing nft={nft} wallet={wallet} setAllListedStates={setStates}/>
+                        )
                     ) : (
-                        <CreateListing nft={nft} wallet={wallet} setOverallStates={setOverallStates} />
+                        <CreateListing nft={nft} wallet={wallet} setOverallStates={setStates} />
                     ))}
             </div>
         </div>

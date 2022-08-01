@@ -4,42 +4,41 @@ import { AnchorWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
 import _ from 'lodash';
 import { conn, initEscrowMarketplaceClient } from '../../client/common';
 import { NFTInterface } from '../common/cardNFT';
+import { solanaSVG } from '../manageNFTs/cancelListing';
 
 interface createListingInterface {
     nft: NFTInterface;
     wallet: AnchorWallet | undefined;
-    setOverallStates: (walletPubKey: AnchorWallet) => Promise<void>;
+    setAllListedStates: (walletPubKey: AnchorWallet) => Promise<void>;
 }
 
-const CreateListing = ({ nft, wallet, setOverallStates }: createListingInterface) => {
-    const { mintPubKey, tokenPubKey, name } = nft;
+const PurchaseListing = ({ nft, wallet, setAllListedStates }: createListingInterface) => {
+    const { mintPubKey, tokenPubKey, sellerKey, price } = nft;
     const [isTxLoading, setIsTxLoading] = useState<boolean>(false);
-    const [listingPrice, setListingPrice] = useState<string>();
     const [wsSubscriptionId, setWsSubscribtionId] = useState<number>();
 
     const removeEscrowInfoListener = async () => {
         if (wsSubscriptionId) await conn.removeAccountChangeListener(wsSubscriptionId);
     };
 
-    const onClickList = async () => {
-        if (wallet && mintPubKey && tokenPubKey && listingPrice) {
+    const onClickPurchase = async () => {
+        if (wallet && mintPubKey && tokenPubKey) {
             setIsTxLoading(true);
             try {
                 const emClient = await initEscrowMarketplaceClient(wallet as any);
-                const { txSig, escrowInfoPda } = await emClient.createListing(
+                const { txSig, buyerTokenPda } = await emClient.purchaseListing(
                     wallet.publicKey,
+                    sellerKey,
                     tokenPubKey,
-                    mintPubKey,
-                    Math.ceil(parseFloat(listingPrice) * 1e9)
+                    mintPubKey
                 );
 
                 console.log('Submitted tx:', txSig);
 
-                const wsSubscriptionId = conn.onAccountChange(escrowInfoPda, async () => {
+                const wsSubscriptionId = conn.onAccountChange(buyerTokenPda, async () => {
                     await removeEscrowInfoListener();
-                    await setOverallStates(wallet);
+                    await setAllListedStates(wallet);
                     setIsTxLoading(false);
-                    setListingPrice(undefined);
                 });
                 setWsSubscribtionId(wsSubscriptionId);
             } catch (err) {
@@ -50,18 +49,14 @@ const CreateListing = ({ nft, wallet, setOverallStates }: createListingInterface
     };
 
     return (
-        <div className="flex flex-row mt-3 space-x-1.5">
-            <input
-                type="number"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-2/3 py-1 px-2  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="Listing Price"
-                value={listingPrice}
-                onChange={(e) => setListingPrice(e.target.value)}
-                required
-            />
+        <div className="flex flex-row mt-3 space-x-1.5 justify-between">
+            <div className="flex flex-row space-x-1">
+                <div className="flex items-center">{solanaSVG()}</div>
+                <div className="flex items-center">{price / 1e9}</div>
+            </div>
             <button
-                onClick={onClickList}
-                className="w-1/3 inline-block flex justify-center items-center rounded bg-sky-300 py-1 px-2 text-sm font-semibold text-slate-900 hover:bg-sky-200 active:bg-sky-500 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300/50"
+                onClick={onClickPurchase}
+                className={`${wallet? "bg-green-400  hover:bg-green-300 focus-visible:outline-green-400/50": "bg-gray-400 cursor-not-allowed"} w-1/3 inline-block flex justify-center items-center rounded py-1.5 px-2 text-sm font-semibold text-slate-900 active:bg-sky-500 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2`}
             >
                 {isTxLoading ? (
                     <svg
@@ -85,11 +80,11 @@ const CreateListing = ({ nft, wallet, setOverallStates }: createListingInterface
                         ></path>
                     </svg>
                 ) : (
-                    'List'
+                    'Buy'
                 )}
             </button>
         </div>
     );
 };
 
-export default CreateListing;
+export default PurchaseListing;

@@ -3,7 +3,7 @@ import { PublicKey } from '@solana/web3.js';
 import { AnchorWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
 import _ from 'lodash';
 import { conn, initEscrowMarketplaceClient } from '../../client/common';
-import { NFTInterface } from './cardNFT';
+import { NFTInterface } from '../common/cardNFT';
 
 interface createListingInterface {
     nft: NFTInterface;
@@ -54,7 +54,7 @@ const CancelListing = ({ nft, wallet, setOverallStates }: createListingInterface
             </div>
             <button
                 onClick={onClickCancel}
-                className="w-1/3 inline-block flex justify-center items-center rounded bg-red-500 py-1 px-2 text-sm font-semibold text-slate-900 hover:bg-red-400 active:bg-sky-500 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500/50"
+                className="w-1/3 inline-block flex justify-center items-center rounded bg-red-500 py-1.5 px-2 text-sm font-semibold text-slate-900 hover:bg-red-400 active:bg-sky-500 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500/50"
             >
                 {isTxLoading ? (
                     <svg
@@ -85,7 +85,7 @@ const CancelListing = ({ nft, wallet, setOverallStates }: createListingInterface
     );
 };
 
-const solanaSVG = () => {
+export const solanaSVG = () => {
     return (
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path

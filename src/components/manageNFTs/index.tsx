@@ -5,12 +5,11 @@ import { conn, initEscrowMarketplaceClient } from '../../client/common/init';
 import { TOKEN_PROGRAM_ID } from '@project-serum/anchor/dist/cjs/utils/token';
 import { filterAvailAccount, getMintsMetadata } from '../../utils';
 import WalletOverview from './overview';
-import CardNFT, { NFTInterface } from './cardNFT';
+import CardNFT, { NFTInterface } from '../common/cardNFT';
 import _ from 'lodash';
 
 const ManageNFTs = () => {
     const wallet = useAnchorWallet();
-    const [walletPubKey, setWalletPubKey] = useState<PublicKey>();
     const [listedNFTsAmount, setListedNFTsAmount] = useState<number>(0);
     const [listedCardsNftInfo, setListedCardsNftInfo] = useState<NFTInterface[]>();
     const [unlistedNFTsAmount, setUnlistedNFTsAmount] = useState<number>(0);
@@ -22,7 +21,6 @@ const ManageNFTs = () => {
     };
 
     const setWalletStates = async (walletPubKey: PublicKey) => {
-        setWalletPubKey(walletPubKey);
         const tokenAccountsInfo = await conn.getParsedTokenAccountsByOwner(
             new PublicKey(walletPubKey),
             tokenAccountsFilter
@@ -38,6 +36,7 @@ const ManageNFTs = () => {
         setUnlistedCardsNftInfo(
             availTokenAccountsInfo.map((tokenAccountInfo, index) => {
                 return {
+                    sellerKey: walletPubKey,
                     mintPubKey: availMintsPubKey[index],
                     tokenPubKey: tokenAccountInfo.pubkey,
                     imageUrl: 'loading',
@@ -52,6 +51,7 @@ const ManageNFTs = () => {
         setUnlistedCardsNftInfo(
             availTokenAccountsInfo.map((tokenAccountInfo, index) => {
                 return {
+                    sellerKey: walletPubKey,
                     mintPubKey: availMintsPubKey[index],
                     tokenPubKey: tokenAccountInfo.pubkey,
                     imageUrl: availMintsMetadata[index].imageUrl,
@@ -65,10 +65,12 @@ const ManageNFTs = () => {
     const setListedStates = async (wallet: AnchorWallet) => {
         const emClient = await initEscrowMarketplaceClient(wallet as any);
         const escrowInfoAccounts = await emClient.fetchEscrowInfoAccBySeller(wallet.publicKey);
+        setListedNFTsAmount(escrowInfoAccounts.length)
 
         setListedCardsNftInfo(
             escrowInfoAccounts.map((tokenAccountInfo) => {
                 return {
+                    sellerKey: tokenAccountInfo.account.sellerKey,
                     mintPubKey: tokenAccountInfo.account.nftMint,
                     tokenPubKey: tokenAccountInfo.account.escrowToken,
                     imageUrl: 'loading',
@@ -85,6 +87,7 @@ const ManageNFTs = () => {
         setListedCardsNftInfo(
             escrowInfoAccounts.map((tokenAccountInfo, index) => {
                 return {
+                    sellerKey: tokenAccountInfo.account.sellerKey,
                     mintPubKey: tokenAccountInfo.account.nftMint,
                     tokenPubKey: tokenAccountInfo.account.escrowToken,
                     imageUrl: availMintsMetadata[index].imageUrl,
@@ -111,7 +114,7 @@ const ManageNFTs = () => {
     return (
         <div>
             <WalletOverview
-                walletPubKey={walletPubKey}
+                walletPubKey={wallet?.publicKey}
                 listedNFTs={listedNFTsAmount}
                 unlistedNFTs={unlistedNFTsAmount}
             />
@@ -136,10 +139,10 @@ const ManageNFTs = () => {
             <div className="grid grid-cols-12 gap-6">
                 {showListed
                     ? listedCardsNftInfo?.map((cardInfoNFT, index) => (
-                          <CardNFT nft={cardInfoNFT} wallet={wallet} setOverallStates={setOverallStates} isListed={true} key={index} />
+                          <CardNFT nft={cardInfoNFT} wallet={wallet} setStates={setOverallStates} isListed={true} key={index} />
                       ))
                     : unlistedCardsNftInfo?.map((cardInfoNFT, index) => (
-                          <CardNFT nft={cardInfoNFT} wallet={wallet} setOverallStates={setOverallStates} isListed={false} key={index} />
+                          <CardNFT nft={cardInfoNFT} wallet={wallet} setStates={setOverallStates} isListed={false} key={index} />
                       ))}
             </div>
         </div>
