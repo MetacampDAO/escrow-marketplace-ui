@@ -28,14 +28,17 @@ const CardNFT = ({ nft, wallet, setStates, isListed }: cardNFTInterface) => {
     const [imgLoading, setImgLoading] = useState<boolean>(true);
 
     return (
-        <div className="shadow-xl bg-slate-800 rounded-lg col-span-12 lg:col-span-3">
+        <div className="shadow-xl bg-slate-800 rounded-lg col-span-12 lg:col-span-3 flex flex-col">
             {imageUrl === 'loading' && (
-                <div className="w-full bg-gray-700 animate-pulse rounded-t-lg">
+                <div className="w-full bg-slate-600 animate-pulse rounded-t-lg">
                     <div style={{ marginTop: '100%' }}></div>
                 </div>
             )}
             {imageUrl !== 'loading' && (
-                <div className="flex relative justify-center h-0" style={{ paddingBottom: '100%' }}>
+                <div
+                    className="flex flex-col relative justify-center h-0"
+                    style={{ paddingBottom: '50%', paddingTop: '50%' }}
+                >
                     <img
                         className={`rounded-t-lg absolute inset-0 h-full w-full ${imgLoading ? 'hidden' : ''}`}
                         alt="example"
@@ -46,7 +49,7 @@ const CardNFT = ({ nft, wallet, setStates, isListed }: cardNFTInterface) => {
                         }
                         onLoad={() => setImgLoading(false)}
                     />
-                    <div className={`w-full bg-gray-700 animate-pulse rounded-t-lg ${imgLoading ? '' : 'hidden'}`}>
+                    <div className={`w-full bg-slate-600 animate-pulse rounded-t-lg ${imgLoading ? '' : 'hidden'}`}>
                         <div style={{ marginTop: '100%' }}></div>
                     </div>
                 </div>
@@ -56,10 +59,10 @@ const CardNFT = ({ nft, wallet, setStates, isListed }: cardNFTInterface) => {
                 {name === 'loading' && <div className="w-full mt-3 py-4 bg-slate-600 rounded animate-pulse"></div>}
                 {name != 'loading' &&
                     (isListed ? (
-                        wallet?.publicKey.equals(nft.sellerKey)? (
+                        wallet?.publicKey.equals(nft.sellerKey) ? (
                             <CancelListing nft={nft} wallet={wallet} setOverallStates={setStates} />
                         ) : (
-                            <PurchaseListing nft={nft} wallet={wallet} setAllListedStates={setStates}/>
+                            <PurchaseListing nft={nft} wallet={wallet} setAllListedStates={setStates} />
                         )
                     ) : (
                         <CreateListing nft={nft} wallet={wallet} setOverallStates={setStates} />
