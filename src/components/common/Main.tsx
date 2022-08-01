@@ -13,7 +13,7 @@ const Main = ({ childComp }: MainProp) => {
             <div id="main-content" className="w-full flex flex-col bg-slate-850 relative overflow-y-auto lg:ml-64">
                 <div className="mb-auto text-gray-200">
                     <main>
-                        {childComp}
+                        <div className="flex flex-col pt-6 px-6">{childComp}</div>
                     </main>
                 </div>
                 <p className="text-center text-sm text-gray-400 my-10">
