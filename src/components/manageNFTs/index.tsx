@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useAnchorWallet } from '@solana/wallet-adapter-react';
+import { AnchorWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, TokenAccountsFilter } from '@solana/web3.js';
-import { conn } from '../../client/common/init';
+import { conn, initEscrowMarketplaceClient } from '../../client/common/init';
 import { TOKEN_PROGRAM_ID } from '@project-serum/anchor/dist/cjs/utils/token';
 import { filterAvailAccount, getMintsMetadata } from '../../utils';
 import WalletOverview from './overview';
@@ -42,6 +42,7 @@ const ManageNFTs = () => {
                     tokenPubKey: tokenAccountInfo.pubkey,
                     imageUrl: 'loading',
                     name: 'loading',
+                    price: 0,
                 };
             })
         );
@@ -55,19 +56,54 @@ const ManageNFTs = () => {
                     tokenPubKey: tokenAccountInfo.pubkey,
                     imageUrl: availMintsMetadata[index].imageUrl,
                     name: availMintsMetadata[index].name,
+                    price: 0,
                 };
             })
         );
     };
 
-    const setOverallStates = async (walletPubKey: PublicKey) => {
-        await setWalletStates(walletPubKey);
+    const setListedStates = async (wallet: AnchorWallet) => {
+        const emClient = await initEscrowMarketplaceClient(wallet as any);
+        const escrowInfoAccounts = await emClient.fetchEscrowInfoAccBySeller(wallet.publicKey);
+
+        setListedCardsNftInfo(
+            escrowInfoAccounts.map((tokenAccountInfo) => {
+                return {
+                    mintPubKey: tokenAccountInfo.account.nftMint,
+                    tokenPubKey: tokenAccountInfo.account.escrowToken,
+                    imageUrl: 'loading',
+                    name: 'loading',
+                    price: 0,
+                };
+            })
+        );
+
+        const availMintsMetadata = await getMintsMetadata(
+            escrowInfoAccounts.map((tokenAccountInfo) => tokenAccountInfo.account.nftMint)
+        );
+
+        setListedCardsNftInfo(
+            escrowInfoAccounts.map((tokenAccountInfo, index) => {
+                return {
+                    mintPubKey: tokenAccountInfo.account.nftMint,
+                    tokenPubKey: tokenAccountInfo.account.escrowToken,
+                    imageUrl: availMintsMetadata[index].imageUrl,
+                    name: availMintsMetadata[index].name,
+                    price: tokenAccountInfo.account.listPrice.toNumber(),
+                };
+            })
+        );
+    };
+
+    const setOverallStates = async (wallet: AnchorWallet) => {
+        await setWalletStates(wallet.publicKey);
+        await setListedStates(wallet);
     };
 
     useEffect(() => {
         (async () => {
             if (wallet) {
-                await setOverallStates(wallet.publicKey);
+                await setOverallStates(wallet);
             }
         })();
     }, [wallet]);
@@ -100,10 +136,10 @@ const ManageNFTs = () => {
             <div className="grid grid-cols-12 gap-6">
                 {showListed
                     ? listedCardsNftInfo?.map((cardInfoNFT, index) => (
-                          <CardNFT nft={cardInfoNFT} wallet={wallet} setOverallStates={setOverallStates} key={index} />
+                          <CardNFT nft={cardInfoNFT} wallet={wallet} setOverallStates={setOverallStates} isListed={true} key={index} />
                       ))
                     : unlistedCardsNftInfo?.map((cardInfoNFT, index) => (
-                          <CardNFT nft={cardInfoNFT} wallet={wallet} setOverallStates={setOverallStates} key={index} />
+                          <CardNFT nft={cardInfoNFT} wallet={wallet} setOverallStates={setOverallStates} isListed={false} key={index} />
                       ))}
             </div>
         </div>

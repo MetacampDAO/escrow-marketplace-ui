@@ -42,7 +42,29 @@ export class EscrowMarketplaceClient extends AccountUtils {
 
     // --------------------------------------- fetch deserialized accounts
 
-    // --------------------------------------- find PDA adsdresses
+    async fetchEscrowInfoAccBySeller(seller: PublicKey) {
+        const filter = [
+            {
+                memcmp: {
+                    offset: 8 + 32, //prepend for anchor's discriminator + nft mint
+                    bytes: seller.toBase58(),
+                },
+            },
+        ];
+        return this.escrowMarketplaceProgram.account.escrowInfo.all(filter);
+    }
+
+    async fetchEscrowInfoAccBySellerToken(sellerToken: PublicKey) {
+        const filter = [
+            {
+                memcmp: {
+                    offset: 8 + 32 + 32, //prepend for anchor's discriminator + nft mint + seller key
+                    bytes: sellerToken.toBase58(),
+                },
+            },
+        ];
+        return (await this.escrowMarketplaceProgram.account.escrowInfo.all(filter))[0];
+    }
 
     // --------------------------------------- find all PDA addresses
 
@@ -59,17 +81,42 @@ export class EscrowMarketplaceClient extends AccountUtils {
             this.escrowMarketplaceProgram.programId
         );
 
-        const txSig = await this.escrowMarketplaceProgram.methods.createListing(
-            toBN(sellerListingPrice),
-            escrowInfoAccountBump
-        ).accounts({
-          seller: seller,
-          sellerToken,
-          nftMint,
-          escrowInfo: escrowInfoPda,
-          escrowToken: escrowTokenAccount
-        }).rpc();
+        const txSig = await this.escrowMarketplaceProgram.methods
+            .createListing(toBN(sellerListingPrice), escrowInfoAccountBump)
+            .accounts({
+                seller: seller,
+                sellerToken,
+                nftMint,
+                escrowInfo: escrowInfoPda,
+                escrowToken: escrowTokenAccount,
+            })
+            .rpc();
 
-        return {txSig, escrowInfoPda}
+        return { txSig, escrowInfoPda };
+    }
+
+    async cancelListing(seller: PublicKey, escrowToken: PublicKey, nftMint: PublicKey) {
+        const sellerTokenPda = await this.findATA(nftMint, seller);
+        const preIxs: anchor.web3.TransactionInstruction[] = [];
+        const sellerTokenAccountExists = await this.conn.getAccountInfo(sellerTokenPda);
+        if (!sellerTokenAccountExists) {
+            preIxs.push(this.createAssociatedTokenAccountInstruction(sellerTokenPda, seller, seller, nftMint));
+        }
+
+        const escrowInfoPda = (await this.fetchEscrowInfoAccBySellerToken(sellerTokenPda)).publicKey;
+
+        const txSig = await this.escrowMarketplaceProgram.methods
+            .cancelListing()
+            .accounts({
+                seller,
+                sellerToken: sellerTokenPda,
+                nftMint,
+                escrowInfo: escrowInfoPda,
+                escrowToken,
+            })
+            .preInstructions(preIxs)
+            .rpc();
+        
+        return {txSig, sellerTokenPda}
     }
 }
