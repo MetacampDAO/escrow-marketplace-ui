@@ -11,7 +11,7 @@ interface OverviewInterface {
 
 const WalletOverview = ({ walletPubKey, unlistedNFTs, listedNFTs }: OverviewInterface) => {
     return (
-        <div className="shadow-lg bg-slate-800 rounded-lg mb-4 px-10 py-3 flex flex-col lg:flex-row lg:space-x-8 w-full">
+        <div className="shadow-lg bg-slate-800 rounded-lg mb-8 px-10 py-3 flex flex-col lg:flex-row lg:space-x-8 w-full">
             <div className="w-full lg:w-8/12">
                 <div className="stat bg-transparent text-white py-2">
                     <div className="text-sm ">Address</div>

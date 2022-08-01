@@ -78,7 +78,7 @@ const ManageNFTs = () => {
             <div className="mb-4 flex flex-row space-x-2 text-sm">
                 <div
                     onClick={() => setShowListed(false)}
-                    className={`rounded-2xl px-2 py-1 w-max border ${
+                    className={`rounded-lg px-2 py-1 w-max border ${
                         showListed ? 'border-slate-700' : 'border-white'
                     } hover:border-white cursor-pointer`}
                 >
@@ -86,7 +86,7 @@ const ManageNFTs = () => {
                 </div>
                 <div
                     onClick={() => setShowListed(true)}
-                    className={`rounded-2xl px-2 py-1 w-max border ${
+                    className={`rounded-lg px-2 py-1 w-max border ${
                         !showListed ? 'border-slate-700' : 'border-white'
                     } hover:border-white cursor-pointer`}
                 >
