@@ -55,7 +55,7 @@ const CardNFT = ({ nft, wallet, setStates, isListed }: cardNFTInterface) => {
                 </div>
             )}
             <div className="px-3 py-5 text-gray-200">
-                {name === 'loading' ? <div className="w-1/2 py-3 bg-slate-600 rounded animate-pulse"></div> : name}
+                {(name === 'loading' || name === '') ? <div className="w-1/2 py-3 bg-slate-600 rounded animate-pulse"></div> : name}
                 {name === 'loading' && <div className="w-full mt-3 py-4 bg-slate-600 rounded animate-pulse"></div>}
                 {name != 'loading' &&
                     (isListed ? (
