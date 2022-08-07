@@ -21,7 +21,7 @@ export type EscrowMarketplaceProgram = {
           "isSigner": false
         },
         {
-          "name": "escrowInfo",
+          "name": "listingProof",
           "isMut": true,
           "isSigner": false
         },
@@ -52,7 +52,7 @@ export type EscrowMarketplaceProgram = {
           "type": "u128"
         },
         {
-          "name": "escrowInfoBump",
+          "name": "listingProofBump",
           "type": "u8"
         }
       ]
@@ -81,7 +81,7 @@ export type EscrowMarketplaceProgram = {
           "isSigner": false
         },
         {
-          "name": "escrowInfo",
+          "name": "listingProof",
           "isMut": true,
           "isSigner": false
         },
@@ -122,7 +122,7 @@ export type EscrowMarketplaceProgram = {
           "isSigner": false
         },
         {
-          "name": "escrowInfo",
+          "name": "listingProof",
           "isMut": true,
           "isSigner": false
         },
@@ -142,7 +142,7 @@ export type EscrowMarketplaceProgram = {
   ],
   "accounts": [
     {
-      "name": "escrowInfo",
+      "name": "listingProof",
       "type": {
         "kind": "struct",
         "fields": [
@@ -199,7 +199,7 @@ export const IDL: EscrowMarketplaceProgram = {
           "isSigner": false
         },
         {
-          "name": "escrowInfo",
+          "name": "listingProof",
           "isMut": true,
           "isSigner": false
         },
@@ -230,7 +230,7 @@ export const IDL: EscrowMarketplaceProgram = {
           "type": "u128"
         },
         {
-          "name": "escrowInfoBump",
+          "name": "listingProofBump",
           "type": "u8"
         }
       ]
@@ -259,7 +259,7 @@ export const IDL: EscrowMarketplaceProgram = {
           "isSigner": false
         },
         {
-          "name": "escrowInfo",
+          "name": "listingProof",
           "isMut": true,
           "isSigner": false
         },
@@ -300,7 +300,7 @@ export const IDL: EscrowMarketplaceProgram = {
           "isSigner": false
         },
         {
-          "name": "escrowInfo",
+          "name": "listingProof",
           "isMut": true,
           "isSigner": false
         },
@@ -320,7 +320,7 @@ export const IDL: EscrowMarketplaceProgram = {
   ],
   "accounts": [
     {
-      "name": "escrowInfo",
+      "name": "listingProof",
       "type": {
         "kind": "struct",
         "fields": [

@@ -42,11 +42,11 @@ export class EscrowMarketplaceClient extends AccountUtils {
 
     // --------------------------------------- fetch deserialized accounts
 
-    async fetchAllEscrowInfoAcc() {
-        return this.escrowMarketplaceProgram.account.escrowInfo.all();
+    async fetchAllListingProofAcc() {
+        return this.escrowMarketplaceProgram.account.listingProof.all();
     }
 
-    async fetchEscrowInfoAccBySeller(seller: PublicKey) {
+    async fetchListingProofAccBySeller(seller: PublicKey) {
         const filter = [
             {
                 memcmp: {
@@ -55,10 +55,10 @@ export class EscrowMarketplaceClient extends AccountUtils {
                 },
             },
         ];
-        return this.escrowMarketplaceProgram.account.escrowInfo.all(filter);
+        return this.escrowMarketplaceProgram.account.listingProof.all(filter);
     }
 
-    async fetchEscrowInfoAccByEscrowToken(escrowToken: PublicKey) {
+    async fetchListingProofAccByEscrowToken(escrowToken: PublicKey) {
         const filter = [
             {
                 memcmp: {
@@ -67,7 +67,7 @@ export class EscrowMarketplaceClient extends AccountUtils {
                 },
             },
         ];
-        return (await this.escrowMarketplaceProgram.account.escrowInfo.all(filter))[0];
+        return (await this.escrowMarketplaceProgram.account.listingProof.all(filter))[0];
     }
 
     // --------------------------------------- find all PDA addresses
@@ -80,23 +80,23 @@ export class EscrowMarketplaceClient extends AccountUtils {
             this.escrowMarketplaceProgram.programId
         );
 
-        const [escrowInfoPda, escrowInfoAccountBump] = await this.findProgramAddress(
+        const [listingProofPda, listingProofAccountBump] = await this.findProgramAddress(
             [sellerToken.toBytes()],
             this.escrowMarketplaceProgram.programId
         );
 
         const txSig = await this.escrowMarketplaceProgram.methods
-            .createListing(toBN(sellerListingPrice), escrowInfoAccountBump)
+            .createListing(toBN(sellerListingPrice), listingProofAccountBump)
             .accounts({
                 seller: seller,
                 sellerToken,
                 nftMint,
-                escrowInfo: escrowInfoPda,
+                listingProof: listingProofPda,
                 escrowToken: escrowTokenAccount,
             })
             .rpc();
 
-        return { txSig, escrowInfoPda };
+        return { txSig, listingProofPda };
     }
 
     async cancelListing(seller: PublicKey, escrowToken: PublicKey, nftMint: PublicKey) {
@@ -107,7 +107,7 @@ export class EscrowMarketplaceClient extends AccountUtils {
             preIxs.push(this.createAssociatedTokenAccountInstruction(sellerTokenPda, seller, seller, nftMint));
         }
 
-        const escrowInfoPda = (await this.fetchEscrowInfoAccByEscrowToken(escrowToken)).publicKey;
+        const listingProofPda = (await this.fetchListingProofAccByEscrowToken(escrowToken)).publicKey;
 
         const txSig = await this.escrowMarketplaceProgram.methods
             .cancelListing()
@@ -115,7 +115,7 @@ export class EscrowMarketplaceClient extends AccountUtils {
                 seller,
                 sellerToken: sellerTokenPda,
                 nftMint,
-                escrowInfo: escrowInfoPda,
+                listingProof: listingProofPda,
                 escrowToken,
             })
             .preInstructions(preIxs)
@@ -132,7 +132,7 @@ export class EscrowMarketplaceClient extends AccountUtils {
             preIxs.push(this.createAssociatedTokenAccountInstruction(buyerTokenPda, buyerKey, buyerKey, nftMint));
         }
 
-        const escrowInfoPda = (await this.fetchEscrowInfoAccByEscrowToken(escrowToken)).publicKey;
+        const listingProofPda = (await this.fetchListingProofAccByEscrowToken(escrowToken)).publicKey;
 
         const txSig = await this.escrowMarketplaceProgram.methods
             .purchaseListing()
@@ -141,7 +141,7 @@ export class EscrowMarketplaceClient extends AccountUtils {
                 buyerToken: buyerTokenPda,
                 nftMint,
                 seller: sellerKey,
-                escrowInfo: escrowInfoPda,
+                listingProof: listingProofPda,
                 escrowToken,
             })
             .preInstructions(preIxs)

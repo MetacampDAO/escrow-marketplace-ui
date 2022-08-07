@@ -12,10 +12,10 @@ const Home = () => {
 
     const setAllListedStates = async (wallet: AnchorWallet) => {
         const emClient = await initEscrowMarketplaceClient();
-        const allEscrowInfoAccounts = await emClient.fetchAllEscrowInfoAcc();
+        const allListingProofAccounts = await emClient.fetchAllListingProofAcc();
 
         setAllListedCardsNftInfo(
-            allEscrowInfoAccounts.map((tokenAccountInfo) => {
+            allListingProofAccounts.map((tokenAccountInfo) => {
                 return {
                     sellerKey: tokenAccountInfo.account.sellerKey,
                     mintPubKey: tokenAccountInfo.account.nftMint,
@@ -28,11 +28,11 @@ const Home = () => {
         );
 
         const availMintsMetadata = await getMintsMetadata(
-            allEscrowInfoAccounts.map((tokenAccountInfo) => tokenAccountInfo.account.nftMint)
+            allListingProofAccounts.map((tokenAccountInfo) => tokenAccountInfo.account.nftMint)
         );
 
         setAllListedCardsNftInfo(
-            allEscrowInfoAccounts.map((tokenAccountInfo, index) => {
+            allListingProofAccounts.map((tokenAccountInfo, index) => {
                 return {
                     sellerKey: tokenAccountInfo.account.sellerKey,
                     mintPubKey: tokenAccountInfo.account.nftMint,

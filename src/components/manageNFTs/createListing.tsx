@@ -17,7 +17,7 @@ const CreateListing = ({ nft, wallet, setOverallStates }: createListingInterface
     const [listingPrice, setListingPrice] = useState<string>();
     const [wsSubscriptionId, setWsSubscribtionId] = useState<number>();
 
-    const removeEscrowInfoListener = async () => {
+    const removeListingProofListener = async () => {
         if (wsSubscriptionId) await conn.removeAccountChangeListener(wsSubscriptionId);
     };
 
@@ -26,7 +26,7 @@ const CreateListing = ({ nft, wallet, setOverallStates }: createListingInterface
             setIsTxLoading(true);
             try {
                 const emClient = await initEscrowMarketplaceClient(wallet as any);
-                const { txSig, escrowInfoPda } = await emClient.createListing(
+                const { txSig, listingProofPda } = await emClient.createListing(
                     wallet.publicKey,
                     tokenPubKey,
                     mintPubKey,
@@ -35,8 +35,8 @@ const CreateListing = ({ nft, wallet, setOverallStates }: createListingInterface
 
                 console.log('Submitted tx:', txSig);
 
-                const wsSubscriptionId = conn.onAccountChange(escrowInfoPda, async () => {
-                    await removeEscrowInfoListener();
+                const wsSubscriptionId = conn.onAccountChange(listingProofPda, async () => {
+                    await removeListingProofListener();
                     await setOverallStates(wallet);
                     setIsTxLoading(false);
                     setListingPrice(undefined);

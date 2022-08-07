@@ -21,7 +21,7 @@
           "isSigner": false
         },
         {
-          "name": "escrowInfo",
+          "name": "listingProof",
           "isMut": true,
           "isSigner": false
         },
@@ -52,7 +52,7 @@
           "type": "u128"
         },
         {
-          "name": "escrowInfoBump",
+          "name": "listingProofBump",
           "type": "u8"
         }
       ]
@@ -81,7 +81,7 @@
           "isSigner": false
         },
         {
-          "name": "escrowInfo",
+          "name": "listingProof",
           "isMut": true,
           "isSigner": false
         },
@@ -122,7 +122,7 @@
           "isSigner": false
         },
         {
-          "name": "escrowInfo",
+          "name": "listingProof",
           "isMut": true,
           "isSigner": false
         },
@@ -142,7 +142,7 @@
   ],
   "accounts": [
     {
-      "name": "EscrowInfo",
+      "name": "ListingProof",
       "type": {
         "kind": "struct",
         "fields": [

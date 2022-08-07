@@ -16,7 +16,7 @@ const CancelListing = ({ nft, wallet, setOverallStates }: createListingInterface
     const [isTxLoading, setIsTxLoading] = useState<boolean>(false);
     const [wsSubscriptionId, setWsSubscribtionId] = useState<number>();
 
-    const removeEscrowInfoListener = async () => {
+    const removeListingProofListener = async () => {
         if (wsSubscriptionId) await conn.removeAccountChangeListener(wsSubscriptionId);
     };
 
@@ -34,7 +34,7 @@ const CancelListing = ({ nft, wallet, setOverallStates }: createListingInterface
                 console.log('Submitted tx:', txSig);
 
                 const wsSubscriptionId = conn.onAccountChange(sellerTokenPda, async () => {
-                    await removeEscrowInfoListener();
+                    await removeListingProofListener();
                     await setOverallStates(wallet);
                     setIsTxLoading(false);
                 });

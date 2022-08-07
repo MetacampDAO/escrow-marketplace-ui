@@ -64,11 +64,11 @@ const ManageNFTs = () => {
 
     const setListedStates = async (wallet: AnchorWallet) => {
         const emClient = await initEscrowMarketplaceClient(wallet as any);
-        const escrowInfoAccounts = await emClient.fetchEscrowInfoAccBySeller(wallet.publicKey);
-        setListedNFTsAmount(escrowInfoAccounts.length)
+        const listingProofAccounts = await emClient.fetchListingProofAccBySeller(wallet.publicKey);
+        setListedNFTsAmount(listingProofAccounts.length)
 
         setListedCardsNftInfo(
-            escrowInfoAccounts.map((tokenAccountInfo) => {
+            listingProofAccounts.map((tokenAccountInfo) => {
                 return {
                     sellerKey: tokenAccountInfo.account.sellerKey,
                     mintPubKey: tokenAccountInfo.account.nftMint,
@@ -81,11 +81,11 @@ const ManageNFTs = () => {
         );
 
         const availMintsMetadata = await getMintsMetadata(
-            escrowInfoAccounts.map((tokenAccountInfo) => tokenAccountInfo.account.nftMint)
+            listingProofAccounts.map((tokenAccountInfo) => tokenAccountInfo.account.nftMint)
         );
 
         setListedCardsNftInfo(
-            escrowInfoAccounts.map((tokenAccountInfo, index) => {
+            listingProofAccounts.map((tokenAccountInfo, index) => {
                 return {
                     sellerKey: tokenAccountInfo.account.sellerKey,
                     mintPubKey: tokenAccountInfo.account.nftMint,
