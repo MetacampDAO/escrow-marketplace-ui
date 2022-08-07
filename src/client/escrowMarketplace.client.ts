@@ -100,28 +100,7 @@ export class EscrowMarketplaceClient extends AccountUtils {
     }
 
     async cancelListing(seller: PublicKey, escrowToken: PublicKey, nftMint: PublicKey) {
-        const sellerTokenPda = await this.findATA(nftMint, seller);
-        const preIxs: anchor.web3.TransactionInstruction[] = [];
-        const sellerTokenAccountExists = await this.conn.getAccountInfo(sellerTokenPda);
-        if (!sellerTokenAccountExists) {
-            preIxs.push(this.createAssociatedTokenAccountInstruction(sellerTokenPda, seller, seller, nftMint));
-        }
-
-        const listingProofPda = (await this.fetchListingProofAccByEscrowToken(escrowToken)).publicKey;
-
-        const txSig = await this.escrowMarketplaceProgram.methods
-            .cancelListing()
-            .accounts({
-                seller,
-                sellerToken: sellerTokenPda,
-                nftMint,
-                listingProof: listingProofPda,
-                escrowToken,
-            })
-            .preInstructions(preIxs)
-            .rpc();
-
-        return { txSig, sellerTokenPda };
+        return ;
     }
 
     async purchaseListing(buyerKey: PublicKey, sellerKey: PublicKey, escrowToken: PublicKey, nftMint: PublicKey) {
